@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>Thomas Gunter&#x27;s 68000 Regrets</title>
+<link rel="stylesheet" href="/main.css">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>Thomas Gunter's 68000 Regrets</h1>
+<p>During the <a href="https://www.youtube.com/watch?v=UaHtGf4aRLs">Motorola 68000 Oral History Panel</a> from the <a href="https://www.computerhistory.org/collections/catalog/102658164">Computer
+History Museum</a>, Thomas Gunter, the director of the 68000 program,
+noted a few regrets around the development of the 68000 <a href="https://www.computerhistory.org/collections/catalog/102658164">(CHM 9)</a>:</p>
+<ul>
+<li>Should have gone with a CMOS implementation earlier</li>
+<li>Didn't get a floating point unit until the 68020</li>
+<li>&quot;We created a monster in terms of all of the addressing modes&quot;</li>
+</ul>
+<p>That last one is kind of an interesting point:</p>
+<blockquote>
+<p>As we went up the chain a little bit to 68010, 68020, we created a
+monster in terms of all the addressing modes that we had. We thought
+that adding more addressing modes was the way you made a machine
+more powerful, totally contrary to the principle of RISC later.</p>
+</blockquote>
+<p>This is interesting to me because I find, as I'm programming the
+68000, it has exactly the addressing modes I would expect. They're
+very idiomatic to someone who has experience with C or C++. Perhaps he
+was speaking as a designer, the logic needed to implement them all
+must have been challenging. All that said, I find them to be just
+enough <a href="https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf">(NXP 2-4)</a>:</p>
+<pre><code>Data Register Direct
+Address Register Direct
+Immediate Data
+Absolute
+Address Register Indirect
+Address Register Indirect with Postincrement
+Address Register Indirect with Predecrement
+Address Register Indirect with Displacement
+Address Register Indirect with Index (8-Bit Displacement)
+Address Register Indirect with Index (Base Displacement)
+Memory Indirect Postindexed
+Memory Indirect Preindexed
+Program Counter Indirect with Displacement
+Program Counter Indirect with Index (8-Bit Displacement)
+Program Counter Indirect with Index (Base Displacement)
+Program Counter Memory Indirect Postindexed
+Program Counter Memory Indirect Preindexed
+</code></pre>
+<p>Most of these I wouldn't want to live without. Perhaps the PC-relative
+addressing modes weren't absolutely necessary but, with a large
+address space, being able to load relocatable code is very useful.</p>
+<p>Contrast these with the 6502's addressing modes <a href="https://www.westerndesigncenter.com/wdc/documentation/w65c02s.pdf">(WDC 15)</a>:</p>
+<pre><code>Accumulator
+Immediate
+Absolute
+Implied
+Absolute Indirect
+Absolute Indexed Indirect 
+Absolute Indexed With X
+Absolute Indexed With Y
+Stack
+Program Counter Relative
+Zero Page
+Zero Page Indexed Indirect
+Zero Page Indexed With X
+Zero Page Indexed With Y
+Zero Page Indirect
+Zero Page Indirect Indexed With Y
+</code></pre>
+<p>About the same cognitive load to my mind. The 68000 does have some
+more refined variants to some of these, especially for indexing but
+overall not too terribly different.</p>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer></body>
+</html>

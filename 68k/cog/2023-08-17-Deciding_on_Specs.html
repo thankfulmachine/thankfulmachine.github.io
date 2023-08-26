@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>Deciding on Specs</title>
+<link rel="stylesheet" href="/main.css">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>Deciding on Specs</h1>
+<p>Right, so I decided on this basic starting architecture for my
+machine:</p>
+<ul>
+<li>68000 at 8-12MHz</li>
+<li>1MB RAM</li>
+<li>256K ROM</li>
+<li>Two 68681 DUARTS, providing 4 serial ports and plenty of parallel
+GPIO</li>
+<li>Perhaps other peripherals like a real-time clock and FPGA A/V
+(for the future)</li>
+</ul>
+<p>I wanted to make all of this by hand on a breadboard, so the memory
+choices are partly to do with the availability of through-hole parts
+and a light adherence to the specs at the time. Here are some
+approximate specs that I collected from Wikipedia on some memorable
+machines to make my decision.</p>
+<p><strong>These numbers are <em>aproximate</em>! No need to panic.</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Year</th>
+<th align="left">Name</th>
+<th align="left">Speed</th>
+<th align="left">RAM</th>
+<th align="left">ROM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1984</td>
+<td align="left">Sinclair QL</td>
+<td align="left">8 MHz</td>
+<td align="left">128K</td>
+<td align="left">32K</td>
+</tr>
+<tr>
+<td align="left">1984</td>
+<td align="left">Apple Mac 128K</td>
+<td align="left">8 MHz</td>
+<td align="left">128K</td>
+<td align="left">64K</td>
+</tr>
+<tr>
+<td align="left">1985</td>
+<td align="left">Atari ST</td>
+<td align="left">8 MHz</td>
+<td align="left">512K+</td>
+<td align="left">16K * 6</td>
+</tr>
+<tr>
+<td align="left">1985</td>
+<td align="left">Sega Super Scalar 1</td>
+<td align="left">6 MHz x2</td>
+<td align="left">48K</td>
+<td align="left">Various</td>
+</tr>
+<tr>
+<td align="left">1985</td>
+<td align="left">Amiga 1000</td>
+<td align="left">7 MHz</td>
+<td align="left">256K+</td>
+<td align="left">256K</td>
+</tr>
+<tr>
+<td align="left">1986</td>
+<td align="left">Sega System 16</td>
+<td align="left">10 MHz</td>
+<td align="left">48K</td>
+<td align="left">Various</td>
+</tr>
+<tr>
+<td align="left">1986</td>
+<td align="left">Sega OutRun</td>
+<td align="left">12 MHz x2</td>
+<td align="left">64K</td>
+<td align="left">Various</td>
+</tr>
+<tr>
+<td align="left">1987</td>
+<td align="left">Sharp X68000</td>
+<td align="left">10 MHz</td>
+<td align="left">1M+</td>
+<td align="left">1M</td>
+</tr>
+<tr>
+<td align="left">1988</td>
+<td align="left">Sega Mega Drive</td>
+<td align="left">8 Mhz</td>
+<td align="left">64K</td>
+<td align="left">4M Cart</td>
+</tr>
+<tr>
+<td align="left">1990</td>
+<td align="left">SNK Neo Geo</td>
+<td align="left">12 MHz</td>
+<td align="left">64K</td>
+<td align="left">Heaps</td>
+</tr>
+<tr>
+<td align="left">1993</td>
+<td align="left">Atari Jaguar</td>
+<td align="left">13 Mhz</td>
+<td align="left">2M</td>
+<td align="left">&lt;6M Cart</td>
+</tr>
+</tbody>
+</table>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer></body>
+</html>

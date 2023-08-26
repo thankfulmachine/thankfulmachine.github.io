@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>An Integer to Hex</title>
+<link rel="stylesheet" href="/main.css">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>An Integer to Hex</h1>
+<p>One of the most useful things you can do when bringing up a homebrew
+computer is to create a <a href="https://en.wikipedia.org/wiki/Machine_code_monitor">monitor program</a>.</p>
+<p>A monitor program must be able to display the contents of memory and
+it is typical to display memory as hexadecimal values. So, let us
+create a function to do just that.</p>
+<p>One hexadecimal digit can convey a place value of 0 to 15, or 0 to F
+in hex.  This corresponds to the upper and lower nibble of a byte, so
+we'll convert a byte as &quot;two halves&quot;, making two hexadecimal
+characters.</p>
+<p>A hexadecimal string can contain the following letters:</p>
+<pre><code>hexchars: dc.b '0123456789ABCDEF'
+</code></pre>
+<p>That is stored in the assembled program as an array of ASCII bytes.
+Somehow, we must turn the value itself into an index into this array.
+For the purposes of this article, we will only consider byte values.</p>
+<pre><code>; void byte_to_hex_str(unsigned char value, char *out);
+; Renders a two-character hex string for the given
+; `value` to the `out` address.
+byte_to_hex_str:
+</code></pre>
+<p>This procedure will take a single byte argument, which is promoted to
+a longword and passed via the stack per the <a href="https://m680x0.github.io/doc/abi.html">M68k ABI</a>.</p>
+<p>The register where we are working with the <code>value</code> argument may have
+data left in the upper bits, so we'll clear that first. Then we'll
+copy the byte out of the stack. Notice that the offset from the stack
+pointer is 7, as we're dealing with a <a href="https://en.wikipedia.org/wiki/Endianness">big-endian</a> machine.</p>
+<pre><code>clr d0                 ; d0 = 0
+move.b 7(sp),d0        ; d0 = 0b000000000000000000000000uuuullll
+</code></pre>
+<p>We're going to modify this directly to work with one nibble, but we'll
+need to recover the other one later. So, make a copy of this value.</p>
+<pre><code>move.l d0,d1           ; Copy d0 into d1
+</code></pre>
+<p>Next, we'll need the base address of the hexchars string so we can
+index into it.</p>
+<pre><code>lea hexchars,a0        ; a0 = start address of
+                       ; the hexchars string.
+</code></pre>
+<p>We'll also need the address of the destination where to render the
+string. This was passed as the second argument on the stack.</p>
+<pre><code>movea.l 8(sp),a1       ; a1 = destination address
+                       ; to render the string.
+</code></pre>
+<p>Now we'll render the upper nibble.</p>
+<pre><code>; Render the upper nibble
+lsr #4,d0              ; d0 &gt;&gt;= 4;
+                       ; Shift the high nibble down into place.
+                       ; d0 = 0b0000000000000000000000000000uuuu
+
+move.b (a0,d0),(a1)+   ; *a1++ = hexchars[d0]
+</code></pre>
+<p>Now this leverages some unique capabilities. This copies a character
+from the <code>hexchars</code> array into the destination depending on the
+nibble's value, making use of two addressing modes that make C-like
+code very idiomatic in 68000 assembly.</p>
+<ul>
+<li>Address Register Indirect with Index (a0,d0) <a href="https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf">(Motorola 2-10)</a></li>
+<li>Address Register Indirect with Postincrement (a1)+ <a href="https://www.nxp.com/docs/en/reference-manual/M68000PRM.pdf">(Motorola 2-6)</a></li>
+</ul>
+<p>As Thomas Gunter says, &quot;totally contrary to the principle of RISC&quot; <a href="https://archive.computerhistory.org/resources/access/text/2012/04/102658164-05-01-acc.pdf">(CHM 9)</a>.</p>
+<p>The former is effectively array indexing, which is of course useful.
+The latter is convenient because it stores to the address in <code>a1</code> and
+also increments address <code>a1</code> afterword, ready for a subsequent write,
+as one does for a string of values in an array. We'll take advantage
+of that.</p>
+<p>Now we'll render the lower nibble directly out of the copy we made
+earlier. Mask off the upper bits and render as we did before.</p>
+<pre><code>; Render the lower nibble
+andi.b #%1111,d1       ; d1 &amp;= 0b1111
+move.b (a0,d1),(a1)    ; *a1 = hexchars[d1]
+rts                    ; Return from subroutine
+</code></pre>
+<p>A couple of things to note about this subroutine:</p>
+<ul>
+<li>To keep things flexible as to where the string can be rendered, such
+as the middle of a string, the subroutine does not set a null
+terminator character in the destination string.</li>
+<li>The destination must be able to hold at least 2 bytes safely. Take
+care with the out address argument.</li>
+</ul>
+<p>Later, we'll expand on this to print a classic memory listing by doing
+the following:</p>
+<ul>
+<li>Read multiple bytes from a single starting address</li>
+<li>Print an ASCII interpretation on the side</li>
+</ul>
+<h2>Complete Listing</h2>
+<pre><code>; void byte_to_hex_str(unsigned char value, char *out);
+; Renders a two-character hex string for the given
+; `value` to the `out` address.
+byte_to_hex_str:
+  clr d0                 ; d0 = 0
+  move.b 7(sp),d0        ; d0 = 0b000000000000000000000000uuuullll
+  move.l d0,d1           ; Copy d0 into d1
+  lea hexchars,a0        ; a0 = start address of
+                         ; the hexchars string.
+  movea.l 8(sp),a1       ; a1 = destination address
+                         ; to render the string.
+
+  ; Render the upper nibble
+  lsr #4,d0              ; d0 &gt;&gt;= 4;
+                         ; Shift the high nibble down into place.
+                         ; d0 = 0b0000000000000000000000000000uuuu
+  move.b (a0,d0),(a1)+   ; *a1++ = hexchars[d0]
+
+  ; Render the lower nibble
+  andi.b #%1111,d1       ; d1 &amp;= 0b1111
+  move.b (a0,d1),(a1)    ; *a1 = hexchars[d1]
+  rts                    ; Return from subroutine
+
+hexchars: dc.b '0123456789ABCDEF'
+</code></pre>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer></body>
+</html>

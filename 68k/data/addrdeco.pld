@@ -1,0 +1,32 @@
+GAL22V10
+ADDRDECO
+
+A23 A22 A21 AS FC0 FC1   FC2  XR0DTACK XR1DTACK NC    NC    GND
+NC  NC  NC  NC NC  DTACK IACK XR1CE    XR0CE    RAMCE ROMCE VCC
+
+/IACK  = FC0 * FC1 * FC2
+/RAMCE = A23 * /AS * IACK
+/ROMCE = /A23 * /A22 * /AS * IACK
+/XR0CE = /A23 * A22 * /A21 * /AS * IACK
+/XR1CE = /A23 * A22 * A21 * /AS * IACK
+DTACK  = XR0DTACK * XR0DTACK * /ROMCE * /RAMCE
+
+DESCRIPTION
+
+Address decoder for M68000-based computer.
+Incomplete decoding, many areas mirrored.
+
+Programming:
+% galasm -v addrdeco.pld
+% minipro --device "ATF22V10C(UES)" --write addrdeco.jed
+
+Address Space:
+00000000 ROM
+00400000 XR0
+00600000 XR1
+00800000 RAM
+
+DTACK:
+Memories are assumed to be fast enough to have "instant"
+or "grounded" DTACK. The 68681 serial chips
+respond accordingly.

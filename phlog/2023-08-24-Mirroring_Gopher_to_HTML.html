@@ -1,0 +1,71 @@
+<html>
+<head>
+<title>Mirroring Gopher to HTML</title>
+<link rel="stylesheet" href="/main.css">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>Mirroring Gopher to HTML</h1>
+<p>I'd like to mirror this content on a static HTTP server, but have been
+unsure up to now how to do that to serve my needs without too much
+complication.</p>
+<p>On the one hand, I like writing HTML by hand, enjoy some of its basic
+semantic features, and basic styling like choosing colors. However, I
+also prefer the plain text simplicity of Gopher.  I've gone back and
+forth on a few options:</p>
+<ol>
+<li>A custom HTML -&gt; Gopher converter, writing HTML first.</li>
+<li>Lynx's <code>--dump</code> mode. I was surprised at the high quality of the dumps that
+Lynx produced.</li>
+<li>A custom Markdown -&gt; Gopher converter.</li>
+<li>Somehow get Markdown to work as a gopher map.</li>
+</ol>
+<p>What I decided was something like option 4.</p>
+<p>I like to use the phd server, which I have forked with a few
+modifications for my own use at:
+<a href="https://github.com/thankfulmachine/phd">https://github.com/thankfulmachine/phd</a>.</p>
+<p>This server uses the Geomyidae format for links in gopher maps, which
+interprets lines that look like this:</p>
+<pre><code>[1|My Directory of Things|/mythings]
+</code></pre>
+<p>as a link in gophermaps. Aside from those, I'm basically writing
+Markdown everywhere else in my plain text files and gopher maps out of
+habit, so I've created a very small script that replaces these link
+lines as:</p>
+<ul>
+<li>A little HTML region with an icon file, a la Mosaic directory
+listings, or</li>
+<li>An <code>&lt;img&gt;</code> tag for image links</li>
+</ul>
+<p>What remains is something that cmark can convert! It creates extremely
+plain and boring HTML, which is exactly what I would write anyway.</p>
+<pre><code>cmark --unsafe -t html
+</code></pre>
+<p>I'm pretty happy with this compromise: it allows me to write the
+content as plain text first for my Gopher server and allow the website
+to fill the role of a &quot;pretty proxy&quot;, without having to use an actual
+proxy server. That works for me!</p>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer></body>
+</html>
