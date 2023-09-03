@@ -41,7 +41,7 @@ typedef struct  {
 <p>I was always a bit confused as to how these were used in the
 PlayStation. <code>SVECTOR</code> is a 16-bit fixed-point vector using the format
 (1,3,12): that is, 1 sign bit, 3 integer bits, and 12 fractional
-bits. These are used in the rotational component of a <code>MATRIX</code>, as
+bits. These are used in rotation and scale <code>MATRIX</code>s, as
 well as local/object coordinates for 3D objects.</p>
 <p>The confusing bit were the <code>VECTOR</code> translation vector components of
 <code>MATRIX.t</code>. They are 32-bit, using the (1,31,0) format. The question
