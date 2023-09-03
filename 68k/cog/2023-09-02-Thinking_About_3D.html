@@ -1,0 +1,177 @@
+<html>
+<head>
+<title>Thinking About 3D</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<script src="/js/breeze.js"></script>
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>Thinking About 3D</h1>
+<p>I'm looking ahead a little towards adding some graphics capability to
+the Bebop 68000. I believe I have enough understanding of text,
+bitmap, and sprite modes to implement any of those. There has always
+been one sticking point from my prior investigations into early 3D
+accelerators, particularly the graphics hardware of the PlayStation 1.</p>
+<h2>Fixed-point Coordinate Spaces</h2>
+<p>If you have ever taken a look at the PsyQ SDK before, you'll see
+mentions of the following types:</p>
+<pre><code>typedef struct 
+  short vx, vy;
+  short vz, pad;
+} SVECTOR;
+
+typedef struct {
+  long vx, vy;
+  long vz, pad;
+} VECTOR;
+
+typedef struct  {
+  short m[3][3]; /* 3x3 rotation matrix */
+  long t[3];     /* transfer vector */
+} MATRIX;
+</code></pre>
+<p>I was always a bit confused as to how these were used in the
+PlayStation. <code>SVECTOR</code> is a 16-bit fixed-point vector using the format
+(1,3,12): that is, 1 sign bit, 3 integer bits, and 12 fractional
+bits. These are used in the rotational component of a <code>MATRIX</code>, as
+well as local/object coordinates for 3D objects.</p>
+<p>The confusing bit were the <code>VECTOR</code> translation vector components of
+<code>MATRIX.t</code>. They are 32-bit, using the (1,31,0) format. The question
+would arise, if you apply a <code>MATRIX</code> to an <code>SVECTOR</code>, the 32-bit
+translation vector necessarily means that the resulting coordinates
+have to be 32-bit. Are <code>VECTOR</code> types used for world coordinates?
+Signs point to yes.</p>
+<p>There are a few helper functions in the PsyQ SDK:</p>
+<ul>
+<li><code>SetRotMatrix</code> taking the rotational portion of a <code>MATRIX</code> and
+setting various registers in specialized hardware.</li>
+<li><code>ScaleMatrix</code>, taking a (1,19,12) <code>VECTOR</code> (a different 32-bit
+format!) and creating a <code>MATRIX</code> that you can multiply in.</li>
+<li><code>SetTransMatrix</code>, doing the same as <code>SetRotMatrix</code> but with the
+translational part.</li>
+</ul>
+<p>Finally, you call <code>RotTransPers</code> which will use those two pieces to
+transform an <code>SVECTOR</code> in local object coordinates, through world and
+camera spaces, to screen coordinates, returning a pair of 16-bit
+integers mapped onto the screen.</p>
+<p>I am not a PS1 developer, but here is how I guess the workflow goes.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Space</th>
+<th align="left">Result</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Object</td>
+<td align="left"><code>SVECTOR</code></td>
+<td align="left">Local coordinates (1,3,12)</td>
+</tr>
+<tr>
+<td align="left">Object</td>
+<td align="left"><code>SVECTOR</code></td>
+<td align="left">Rotate with <code>SVECTOR</code> (1,3,12)</td>
+</tr>
+<tr>
+<td align="left">Object</td>
+<td align="left"><code>SVECTOR</code></td>
+<td align="left">Scale with <code>VECTOR</code> (1,19,12)</td>
+</tr>
+<tr>
+<td align="left">World</td>
+<td align="left"><code>VECTOR</code></td>
+<td align="left">Translate with <code>VECTOR</code> (1,31,0)</td>
+</tr>
+<tr>
+<td align="left">Screen</td>
+<td align="left"><code>long</code> (packed x,y)</td>
+<td align="left">Project to screen space</td>
+</tr>
+</tbody>
+</table>
+<p>So that solves a long-standing mystery as to how people thought about
+objects in 3D space on the PlayStation. I'm sure there are many other
+details working with such specialized hardware and I'm not sure I have
+all of the details 100% correct, but I think I have the gist right as
+things pertain to the fixed-point numbers.</p>
+<p>The reason I'm interested in all of this representation is that the
+basic 68000 does not have a floating point unit.</p>
+<h2>Memory Bandwidth and Drawing with an FPGA</h2>
+<p>The other big problem I've been thinking about is how quickly I can do
+various drawing operations onto a single-ported memory using an FPGA.
+I'd like to investigate implementing a very lightweight and naive GPU
+with some related functionality from the PlayStation 1 GPU, that is:</p>
+<ul>
+<li>A single 1MB VRAM, 1024 x 512 framebuffer, shared for drawing areas,
+textures, and perhaps color look-up tables.</li>
+<li>Colored point and line drawing</li>
+<li>Flat-shaded color and textured polygons</li>
+<li>Maybe gouraud color and textured polygons</li>
+<li>A drawing command list pulled from main memory
+<ul>
+<li>Perhaps an <a href="https://psx.arthus.net/sdk/Psy-Q/DOCS/TECHNOTE/ordtbl.pdf">ordering table</a> a la the PS1,
+or implementing a depth buffer</li>
+</ul>
+</li>
+</ul>
+<p>There are several actors working with that shared VRAM:</p>
+<ul>
+<li>The CPU (or perhaps a DMA) to take textures from CPU memory space
+into VRAM</li>
+<li>The renderer, which will draw primitives into the active drawing
+area</li>
+<li>The display, which will scan out pixels to VGA</li>
+<li>The texture mapping unit (TMU), which must read textures from the
+framebuffer as needed when rendering texture-mapped triangles</li>
+</ul>
+<p>With a 100 MHz main clock, the FPGA could give these four actors
+time-multiplexed access to SRAM, effectively giving each a 25 MHz
+channel to work with. This happens to work especially well because a
+25 MHz clock can be used to drive a 640 x 480 VGA display!</p>
+<p>Not all actors need access all of the time, so the renderer could be
+given spare slots. Even if the renderer only could have one slot,
+that's 25 million 16-bit pixel writes per second.  At say 20 pixels
+per triangle, that's a theoretical maximum triangle fill rate of over
+a million triangles per second!</p>
+<p>Of course, things won't be so easy. With the TMU, the fill rate will
+be halved (a texture lookup for each pixel), and many other
+calculations and interpolations will need to happen during drawing, so
+the number will be much lower. Still, it's promising for a little
+naive GPU. All that said, when given multiple channels, the renderer's
+drawing speed could be increased further.</p>
+<h2>Final Thoughts</h2>
+<p>So, I'm confident I could get a very basic GPU working that could
+render points, lines, and triangles, using fixed-point maths and a
+readily available FPGA such as the <a href="https://www.latticesemi.com/iCE40">iCE40 HX</a> and a pair of <a href="https://www.alliancememory.com/wp-content/uploads/pdf/sram/fa/AS7C34096A-8TINrev1.3.pdf">8 ns
+Alliance Memory 512K x 8 SRAM</a> chips.</p>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://oldbytes.space/@thankfulmachine">Mastodon</a></p>
+    <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://github.com/thankfulmachine">GitHub</a></p>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer>
+<p>
+    <a href="javascript:breeze();">&#127800</a>
+</p></body>
+</html>
