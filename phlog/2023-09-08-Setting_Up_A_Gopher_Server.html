@@ -20,6 +20,12 @@ Virtual Private Server (VPS). I'll assume you found a VPS provider
 that you like, are running Ubuntu 22.04 or a similar Linux
 distribution that uses systemd, and know your way around a command
 line.</p>
+<h2>Managing your domain</h2>
+<p>Once you've chosen a VPS provider, you'll be given an IP address,
+hopefully both an IPv4 and IPv6 address. Create an <a href="https://www.cloudflare.com/learning/dns/dns-records">A and AAAA</a>
+record for your domain with your registrar that points to each of
+these IP addresses respectively. The server we'll be using in this
+tutorial should work fine with both IPv4 and IPv6.</p>
 <h2>Install dependencies</h2>
 <p>First, let's perform some operations as the root user.</p>
 <p>The server I'll be using is <code>phd</code>, a small Rust implementation. We'll
@@ -91,6 +97,8 @@ with this approach. Feel free to run the server as <code>root</code> and skip
 this step if it suits you.</p>
 <pre><code># setcap CAP_NET_BIND_SERVICE=+ep /home/gopher/.cargo/bin/phd 
 </code></pre>
+<p>You will need to do this each time you rebuild or reinstall the
+executable. Keep this in mind if you decide to modify your server.</p>
 <h2>Start it up!</h2>
 <p>We should now be able to start the service and enable it for each
 boot.</p>
@@ -102,13 +110,39 @@ boot.</p>
 # echo &quot;/&quot; | nc grateful.garden 70
 </code></pre>
 <p>I found a tutorial, <a href="https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units">How To Use Systemctl to Manage Systemd Services
-and Units</a> to be helpful for brushing up on my systemd knowledge. I
-know many complain about systemd in the Linux world but, coming from
+and Units</a>, to be helpful for brushing up on my systemd knowledge.
+I know many complain about systemd in the Linux world but, coming from
 macOS, it seems pretty natural to me as most daemons are managed by
 <code>launchd</code>, which I can only assume was the main inspiration.</p>
 <p>If you are running into problems, you can view the service log:</p>
 <pre><code># journalctl -u phd
 </code></pre>
+<h2>Encryption and security</h2>
+<p>Although it's theoretically possibl, do note that there is no
+encryption layer mentioned in the original <a href="https://www.rfc-editor.org/rfc/rfc1436">Gopher specification</a>
+and I am not aware of any server or client that use TLS. The relative
+bare nature of the application and transport of Gopher pages is
+somewhat a part of Gopher culture, for better or worse.</p>
+<h2>Who is sending me weird requests?</h2>
+<p>As a low and attractive port 70, you will likely see various attempts
+of &quot;research&quot; firms or bad actors poking at your server and seeing how
+you'll respond. Here's an example from the log:</p>
+<pre><code>Connection from [::ffff:192.241.226.33]:48372
+Client sent: &quot;MGLNDD_194.195.86.14_70&quot;
+Not found: /MGLNDD_194.195.86.14_70
+</code></pre>
+<p>It's up to you to figure out how to block these, although it may be
+nothing to worry about.</p>
+<p>As Gopher is a very naive protocol and old system understood
+by a few retro nerds out there, I do not recommend running a server on
+shared infrastructure or among data that you need to keep safe or
+secret. Be careful out there.</p>
+<h2>Final thoughts</h2>
+<p>Please do not take Gopher too seriously as a complete replacement for the
+modern Web. All of that said, you perhaps are doing well avoiding the
+complex risks of running a complete Web server. Everything here is
+relatively simple and you are capable of understanding it.</p>
+<p>Have fun with it.</p>
 </article>
 <footer>
     <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://oldbytes.space/@thankfulmachine">Mastodon</a></p>
