@@ -1,0 +1,132 @@
+<html>
+<head>
+<title>Setting Up a Gopher Server on Ubuntu</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<script src="/js/breeze.js"></script>
+</head>
+<body>
+<header>
+<a href="/">grateful.garden</a>
+</header>
+<article>
+<h1>Setting Up a Gopher Server on Ubuntu</h1>
+<p>Here's a little walkthrough for setting up your own Gopher server on a
+Virtual Private Server (VPS). I'll assume you found a VPS provider
+that you like, are running Ubuntu 22.04 or a similar Linux
+distribution that uses systemd, and know your way around a command
+line.</p>
+<h2>Install dependencies</h2>
+<p>First, let's perform some operations as the root user.</p>
+<p>The server I'll be using is <code>phd</code>, a small Rust implementation. We'll
+compile it from scratch. Install the Rust compiler.</p>
+<pre><code># apt install rustc
+</code></pre>
+<h2>Create a <code>gopher</code> user</h2>
+<p>It's customary for servers with low port numbers to run as the root
+user. Although Gopher uses port 70, I just don't like to run servers
+as root, so I create a user called <code>gopher</code>:</p>
+<pre><code># adduser gopherdpsrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr===========================
+</code></pre>
+<p>Excuse me, my dog insisted on laying her head on the keyboard. I'm
+leaving it.</p>
+<p>Anyway, as I was saying:</p>
+<pre><code># adduser gopher
+</code></pre>
+<h2>Create a systemd service unit configuration file</h2>
+<p>We'll be using systemd to manage the lifecycle of the phd process. For
+that, we'll need a description of the service.</p>
+<pre><code># cat /usr/lib/systemd/system/phd.service
+[Unit]
+Description=phd Gopher Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=gopher
+WorkingDirectory=/home/gopher/SOME/PLACE
+ExecStart=/home/gopher/.cargo/bin/phd -p 70 -h YOURHOSTNAME /home/gopher/SOME/PLACE
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p>This will automatically launch the server once network access is up
+and relaunch as needed.</p>
+<p>Here, <code>/home/gopher/SOME/PLACE</code> will be the place where you'll place
+all of your content. Make sure to adjust the path once you decide
+where to put it. I put mine somewhere inside the <code>gopher</code> user's home
+directory.</p>
+<p>The <code>-h YOURHOSTNAME</code> option will automatically use this hostname for
+links that don't have the hostname specified. This is very handy for
+links within your own server.</p>
+<p>The <code>-p 70</code> option will bind the customary port 70. The default is
+7070, which can be handy for local testing, along with phd's <code>-r</code>
+flag, which will render out the response for a given request.</p>
+<h2>Install phd</h2>
+<p>Let us switch over to the <code>gopher</code> user now, and build phd.</p>
+<pre><code>$ git clone https://github.com/xvxx/phd.git
+$ cd phd
+$ cargo install --path .
+</code></pre>
+<p>This will install the <code>phd</code> executable to
+<code>/home/gopher/.cargo/bin/phd</code>.</p>
+<h2>Create some content!</h2>
+<p>Now would be a good time to create the directory of your Gopher
+server, if you haven't done so already. For more information on the
+kinds of content you can put there, see <a href="https://github.com/xvxx/phd/blob/master/README.md">phd's README</a>.</p>
+<pre><code>$ mkdir /home/gopher/SOME/PLACE
+</code></pre>
+<h2>Enable port 70 for the <code>phd</code> server</h2>
+<p>Now, back to root user. Because we'll be running a Gopher server
+from port 70 as a non-root user, we need to set a bit on the
+executable so that it is allowed to bind that port. Some may disagree
+with this approach. Feel free to run the server as <code>root</code> and skip
+this step if it suits you.</p>
+<pre><code># setcap CAP_NET_BIND_SERVICE=+ep /home/gopher/.cargo/bin/phd 
+</code></pre>
+<h2>Start it up!</h2>
+<p>We should now be able to start the service and enable it for each
+boot.</p>
+<pre><code># systemctl reload-or-restart phd
+# systemctl enable phd
+</code></pre>
+<p>Try a quick test to make sure the server is running:</p>
+<pre><code># systemctl status phd
+# echo &quot;/&quot; | nc grateful.garden 70
+</code></pre>
+<p>I found a tutorial, <a href="https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units">How To Use Systemctl to Manage Systemd Services
+and Units</a> to be helpful for brushing up on my systemd knowledge. I
+know many complain about systemd in the Linux world but, coming from
+macOS, it seems pretty natural to me as most daemons are managed by
+<code>launchd</code>, which I can only assume was the main inspiration.</p>
+<p>If you are running into problems, you can view the service log:</p>
+<pre><code># journalctl -u phd
+</code></pre>
+</article>
+<footer>
+    <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://oldbytes.space/@thankfulmachine">Mastodon</a></p>
+    <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://github.com/thankfulmachine">GitHub</a></p>
+    <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
+
+    <p class="smol">Copyright 2023 Thankful Machine. All rights reserved.</p>
+
+    <p class="smol">No information on this server
+        may be reproduced or published
+        without express permission.
+        Under no circumstances may such
+        information be used for training
+        artificial intelligence, machine
+        learning, or similar mechanisms.
+    </p>
+</footer>
+<p>
+    <a href="javascript:breeze();">&#127800</a>
+</p></body>
+</html>
