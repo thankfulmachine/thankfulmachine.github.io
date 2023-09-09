@@ -10,10 +10,8 @@
 <script src="/js/breeze.js"></script>
 </head>
 <body>
-<header>
-<a href="/">grateful.garden</a>
-</header>
 <article>
+<div class="header"><a href="/">grateful.garden</a></div>
 <h1>An Integer to Hex</h1>
 <p>One of the most useful things you can do when bringing up a homebrew
 computer is to create a <a href="https://en.wikipedia.org/wiki/Machine_code_monitor">monitor program</a>.</p>
@@ -127,8 +125,8 @@ byte_to_hex_str:
 
 hexchars: dc.b '0123456789ABCDEF'
 </code></pre>
-</article>
-<footer>
+<div class="footer">
+    <hr/>
     <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://oldbytes.space/@thankfulmachine">Mastodon</a></p>
     <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://github.com/thankfulmachine">GitHub</a></p>
     <p><img class="icon" src="/images/icon-terminal.png" /><a href="gopher://grateful.garden">Gopher Version</a></p>
@@ -143,7 +141,8 @@ hexchars: dc.b '0123456789ABCDEF'
         artificial intelligence, machine
         learning, or similar mechanisms.
     </p>
-</footer>
+</div>
+</article>
 <p>
     <a href="javascript:breeze();">&#127800</a>
 </p></body>

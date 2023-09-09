@@ -9,46 +9,37 @@ body {
   font-size: 15px;
   font-weight: 500;
   font-family: 'Fira Code';
+  margin: 1em;
 }
 
-article, header, footer {
-  width: 800px;
-  /* background-color: #FFF; */
-  color: black;
-  padding-left: 1em;
-  padding-right: 1em;
-
-  /* border: 1px solid black; */
-}
-
-article, footer {
-  background-image: url("../images/transchecker.gif");
-  background-attachment: fixed;
+p,h1,h2,h3,h4,h5,ul,ol,table {
+  max-width: 800px;
 }
 
 article {
+  background-image: url("../images/transchecker.gif");
+  background-attachment: fixed;
+  color: black;
   /* padding: 1em; */
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  padding: 1em;
+  border: 1px solid black;
+  padding-left: 1em;
+  padding-right: 1em;
+  width: fit-content;
 }
 
-header > a {
+.header > a {
   font-family: "Unscii-16";
   font-size: 20px;
 }
 
-header {
+.header {
   background-color: #00AA00;
   color: white;
-  border-top: 1px solid black;
   border-bottom: 1px solid black;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-}
-
-footer {
-  border: 1px solid black;
+  margin-left: -1em;
+  margin-right: -1em;
+  padding-left: 1em;
+  width: fit-parent;
 }
 
 blockquote {
@@ -59,9 +50,10 @@ blockquote {
 
 h1,h2,h3,h4,h5,h6 {
   margin: 0;
+  padding-top: 0.5em;
 }
 
-header > a {
+.header > a {
   color: white;
   text-decoration: none;
 }
@@ -75,7 +67,7 @@ th, td {
   padding: 0.25em;
 }
 
-:not(header) > a {
+:not(.header) > a {
   color: #FF5555;
   text-decoration: none;
 }
@@ -92,8 +84,9 @@ code {
 
 pre {
   padding: 0.5em;
-  padding-left: 2.7em;
-=  font-weight: bold;
+  padding-left: 1em;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 hr {
@@ -114,3 +107,14 @@ hr {
 .breezeicon {
   text-align: right;
 }
+
+@media only screen and (max-width: 800px) {
+  pre {
+    font-size: 12px;
+    padding-left: 0;
+  }
+  :not(pre,hr,article,.header,.footer,img,hr,table,ul,ol) {
+    width: 90vw;
+  }
+}
+
