@@ -1,5 +1,6 @@
 <html>
 <head>
+<title>Rewiring the Bebop 68000</title>
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
@@ -11,16 +12,17 @@
 <body>
 <article>
 <div class="header"><a href="/">grateful.garden</a></div>
-<p><img class="icon" src="/images/icon-file.png" /><a href="/2023-08-17-Deciding_on_Specs.html">2023-08-17-Deciding_on_Specs</a>
-<br/>
-<img class="icon" src="/images/icon-file.png" /><a href="/2023-09-02-Thinking_About_3D.html">2023-09-02-Thinking_About_3D</a>
-<br/>
-<img class="icon" src="/images/icon-file.png" /><a href="/2023-09-29-Rewire.html">2023-09-29-Rewire</a>
-<br/>
-<img class="icon" src="/images/icon-file.png" /><a href="/2023-08-16-I'm_Building_a_68K_Computer.html">2023-08-16-I'm_Building_a_68K_Computer</a>
-<br/>
-<img class="icon" src="/images/icon-file.png" /><a href="/2023-08-17-Thomas_Gunter's_68000_Regrets.html">2023-08-17-Thomas_Gunter's_68000_Regrets</a>
-<br/></p>
+<h1>Rewiring the Bebop 68000</h1>
+<p>I'm creating a &quot;revision 2&quot; of the Bebop 68000 with two main changes:</p>
+<ul>
+<li>Removing the address and data bus transceivers as everything is CMOS with
+very high input impedance. I didn't notice any drops when removing
+them in the revision 1 board.</li>
+<li>Adding a Dallas DS1510 real-time clock for fun</li>
+</ul>
+<p>Hopefully, with a slightly more compact layout, I can get the wires even neater
+than before. With the smart black breadboards I got from BusBoard, I'm looking
+forward to making the best handmade revision of this computer yet.</p>
 <div class="footer">
     <hr/>
     <p><img class="icon" src="/images/icon-globe.png" /><a rel="me" href="https://oldbytes.space/@thankfulmachine">Mastodon</a></p>
